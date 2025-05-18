@@ -1,4 +1,4 @@
-const BASE_URL = "https://studynotion-edtech-project-main-gcai.onrender.com"
+const BASE_URL = "https://studynotion-edtech-project-main-gcai.onrender.com/api/v1"
 
 
 // AUTH ENDPOINTS
