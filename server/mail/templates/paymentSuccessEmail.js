@@ -16,17 +16,11 @@ exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
                 padding: 0;
             }
     
-    
             .container {
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 20px;
                 text-align: center;
-            }
-    
-            .logo {
-                max-width: 200px;
-                margin-bottom: 20px;
             }
     
             .message {
@@ -38,18 +32,6 @@ exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
             .body {
                 font-size: 16px;
                 margin-bottom: 20px;
-            }
-    
-            .cta {
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #FFD60A;
-                color: #000000;
-                text-decoration: none;
-                border-radius: 5px;
-                font-size: 16px;
-                font-weight: bold;
-                margin-top: 20px;
             }
     
             .support {
@@ -67,12 +49,10 @@ exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
     
     <body>
         <div class="container">
-            <a href="https://studynotion-edtech-project.vercel.app"><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png"
-                    alt="StudyNotion Logo"></a>
             <div class="message">Course Payment Confirmation</div>
             <div class="body">
                 <p>Dear ${name},</p>
-                <p>We have received a payment of <span class='highlight'>₹${amount}</span></p>.
+                <p>We have received a payment of <span class='highlight'>₹${amount}</span>.</p>
                 <p>Your Payment ID is <b>${paymentId}</b></p>
                 <p>Your Order ID is <b>${orderId}</b></p>
             </div>
@@ -81,5 +61,5 @@ exports.paymentSuccessEmail = (name, amount, orderId, paymentId) => {
         </div>
     </body>
     
-    </html>`
-}
+    </html>`;
+};

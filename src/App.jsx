@@ -15,7 +15,7 @@ import AddCourse from "./components/core/Dashboard/AddCourse"
 import Cart from "./components/core/Dashboard/Cart"
 import EditCourse from "./components/core/Dashboard/EditCourse"
 import EnrolledCourses from "./components/core/Dashboard/EnrolledCourses"
-import Instructor from "./components/core/Dashboard/Instructor"
+// import Instructor from "./components/core/Dashboard/Instructor"
 import MyCourses from "./components/core/Dashboard/MyCourses"
 import MyProfile from "./components/core/Dashboard/MyProfile"
 import Settings from "./components/core/Dashboard/Settings"
@@ -36,6 +36,7 @@ import VerifyEmail from "./pages/VerifyEmail"
 import ViewCourse from "./pages/ViewCourse"
 import { getUserDetails } from "./services/operations/profileAPI"
 import { ACCOUNT_TYPE } from "./utils/constants"
+import { setToken } from "./slices/authSlice"
 
 function App() {
   const dispatch = useDispatch()
@@ -43,8 +44,9 @@ function App() {
   const { user } = useSelector((state) => state.profile)
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      const token = JSON.parse(localStorage.getItem("token"))
+    const token = localStorage.getItem("token")
+    if (token) {
+      dispatch(setToken(token));
       dispatch(getUserDetails(token, navigate))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +116,7 @@ function App() {
           {/* Route only for Instructors */}
           {user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
             <>
-              <Route path="dashboard/instructor" element={<Instructor />} />
+              {/* <Route path="dashboard/instructor" element={<Instructor />} /> */}
               <Route path="dashboard/my-courses" element={<MyCourses />} />
               <Route path="dashboard/add-course" element={<AddCourse />} />
               <Route

@@ -1,10 +1,11 @@
 import { toast } from "react-hot-toast"
-
 import rzpLogo from "../../assets/Logo/rzp_logo.png"
 import { resetCart } from "../../slices/cartSlice"
 import { setPaymentLoading } from "../../slices/courseSlice"
 import { apiConnector } from "../apiConnector"
 import { studentEndpoints } from "../apis"
+
+const RAZORPAY_KEY = "rzp_test_Gbe04qtV0wwQcZ"
 
 const {
   COURSE_PAYMENT_API,
@@ -12,61 +13,44 @@ const {
   SEND_PAYMENT_SUCCESS_EMAIL_API,
 } = studentEndpoints
 
-// Load the Razorpay SDK from the CDN
+// Load Razorpay SDK
 function loadScript(src) {
   return new Promise((resolve) => {
     const script = document.createElement("script")
     script.src = src
-    script.onload = () => {
-      resolve(true)
-    }
-    script.onerror = () => {
-      resolve(false)
-    }
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
     document.body.appendChild(script)
   })
 }
 
 // Buy the Course
-export async function BuyCourse(
-  token,
-  courses,
-  user_details,
-  navigate,
-  dispatch
-) {
+export async function BuyCourse(token, courses, user_details, navigate, dispatch) {
   const toastId = toast.loading("Loading...")
   try {
-    // Loading the script of Razorpay SDK
     const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js")
-
     if (!res) {
-      toast.error(
-        "Razorpay SDK failed to load. Check your Internet Connection."
-      )
+      toast.error("Razorpay SDK failed to load. Check your Internet Connection.")
+      toast.dismiss(toastId)
       return
     }
 
-    // Initiating the Order in Backend
     const orderResponse = await apiConnector(
       "POST",
       COURSE_PAYMENT_API,
-      {
-        courses,
-      },
-      {
-        Authorization: `Bearer ${token}`,
-      }
+      { courses },
+      { Authorization: `Bearer ${token}` }
     )
 
     if (!orderResponse.data.success) {
       throw new Error(orderResponse.data.message)
     }
-    console.log("PAYMENT RESPONSE FROM BACKEND............", orderResponse.data)
 
-    // Opening the Razorpay SDK
+    console.log("PAYMENT RESPONSE FROM BACKEND............", orderResponse.data)
+    console.log("Razorpay Key: ", RAZORPAY_KEY)
+
     const options = {
-      key: process.env.RAZORPAY_KEY,
+      key: RAZORPAY_KEY,
       currency: orderResponse.data.data.currency,
       amount: `${orderResponse.data.data.amount}`,
       order_id: orderResponse.data.data.id,
@@ -82,13 +66,16 @@ export async function BuyCourse(
         verifyPayment({ ...response, courses }, token, navigate, dispatch)
       },
     }
+
     const paymentObject = new window.Razorpay(options)
 
-    paymentObject.open()
+    // Handle Payment Failure
     paymentObject.on("payment.failed", function (response) {
       toast.error("Oops! Payment Failed.")
-      console.log(response.error)
+      console.log("PAYMENT FAILED RESPONSE............", response.error)
     })
+
+    paymentObject.open()
   } catch (error) {
     console.log("PAYMENT API ERROR............", error)
     toast.error("Could Not make Payment.")
@@ -96,7 +83,7 @@ export async function BuyCourse(
   toast.dismiss(toastId)
 }
 
-// Verify the Payment
+// Verify Payment
 async function verifyPayment(bodyData, token, navigate, dispatch) {
   const toastId = toast.loading("Verifying Payment...")
   dispatch(setPaymentLoading(true))
@@ -122,7 +109,7 @@ async function verifyPayment(bodyData, token, navigate, dispatch) {
   dispatch(setPaymentLoading(false))
 }
 
-// Send the Payment Success Email
+// Send Payment Success Email
 async function sendPaymentSuccessEmail(response, amount, token) {
   try {
     await apiConnector(
